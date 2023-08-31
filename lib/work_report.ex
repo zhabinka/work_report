@@ -17,13 +17,9 @@ defmodule WorkReport do
   @version "1.0.0"
 
   def main(args \\ []) do
-    IO.puts("args #{}")
-    IO.inspect(args)
-    IO.inspect(parse_args(args))
-
     case parse_args(args) do
       {[help: true], [], []} -> help()
-      {[version: true], [], []} -> IO.puts(@version)
+      {[version: true], [], []} -> IO.puts(@name <> " v" <> @version)
       _ -> IO.puts(:jopa)
     end
   end

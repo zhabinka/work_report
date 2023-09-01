@@ -5,8 +5,8 @@ defmodule WorkReport do
   @name "Work Report"
   @version "1.0.0"
 
-  import WorkReport.BuildTree
-  import WorkReport.Render
+  import WorkReport.Parser
+  import WorkReport.Formatter
 
   def main(args \\ []) do
     IO.inspect(parse_args(args))
@@ -44,7 +44,9 @@ defmodule WorkReport do
     path
     |> parse()
     |> build_tree()
-    |> render()
+    |> build_report()
+
+    # |> render()
   end
 
   def parse(path) do

@@ -2,22 +2,17 @@ defmodule WorkReport do
   @moduledoc """
   # DONE-list analyser
   """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> WorkReport.hello()
-      :world
-
-  """
-
   @name "Work Report"
   @version "1.0.0"
 
+  import WorkReport.BuildTree
+  import WorkReport.Render
+
   def main(args \\ []) do
+    IO.inspect(parse_args(args))
+
     case parse_args(args) do
+      {[], [path], []} -> make_report(path)
       {[help: true], [], []} -> help()
       {[version: true], [], []} -> IO.puts(@name <> " v" <> @version)
       _ -> IO.puts(:jopa)
@@ -41,5 +36,23 @@ defmodule WorkReport do
         -v, --version    Show version
         -h, --help       Show this help message
     """)
+  end
+
+  def make_report(path) do
+    IO.puts("make_report #{path}")
+
+    path
+    |> parse()
+    |> build_tree()
+    |> render()
+  end
+
+  def parse(path) do
+    IO.puts("parser #{path}")
+
+    case File.read(path) do
+      {:ok, source} -> source
+      {:error, error} -> error
+    end
   end
 end

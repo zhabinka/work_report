@@ -12,7 +12,7 @@ defmodule WorkReport do
     IO.inspect(parse_args(args))
 
     case parse_args(args) do
-      {[], [path], []} -> make_report(path)
+      {[month: month, day: day], [path], []} -> make_report(path)
       {[help: true], [], []} -> help()
       {[version: true], [], []} -> IO.puts(@name <> " v" <> @version)
       _ -> IO.puts(:jopa)
@@ -22,7 +22,8 @@ defmodule WorkReport do
   def parse_args(args) do
     OptionParser.parse(
       args,
-      strict: [xz: :string, help: :boolean, version: :boolean]
+      strict: [month: :string, day: :string, help: :boolean, version: :boolean],
+      aliases: [m: :month, d: :day]
     )
   end
 
@@ -38,15 +39,13 @@ defmodule WorkReport do
     """)
   end
 
-  def make_report(path) do
+  def make_report(path, options \\ %{}) do
     IO.puts("make_report #{path}")
 
     path
     |> parse()
     |> build_tree()
     |> build_report()
-
-    # |> render()
   end
 
   def parse(path) do

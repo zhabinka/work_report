@@ -69,11 +69,15 @@ defmodule WorkReport.Parser do
   end
 
   @spec parse_time(String.t()) :: non_neg_integer()
-  def parse_time(str_time) do
-    # TODO: Обработать вот такой кейс - 1h
-    case String.split(str_time, " ") do
-      [minutes] -> get_numbers(minutes)
-      [hours, minutes] -> get_numbers(hours) * 60 + get_numbers(minutes)
-    end
+  def parse_time(time) do
+    time
+    |> String.split(" ")
+    |> Enum.reduce(0, fn bit, acc ->
+      case Integer.parse(bit) do
+        {hours, "h"} -> acc + hours * 60
+        {minutes, "m"} -> acc + minutes
+        :error -> acc
+      end
+    end)
   end
 end

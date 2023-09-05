@@ -1,4 +1,6 @@
 defmodule WorkReport.Parser do
+  alias WorkReport.Model.{Task}
+
   @months %{
     1 => "January",
     2 => "February",
@@ -61,11 +63,14 @@ defmodule WorkReport.Parser do
     %{category: category, description: description, time: parse_time(time)}
   end
 
-  @spec get_numbers(String.t()) :: non_neg_integer()
-  def get_numbers(str) do
-    str
-    |> String.replace(~r/[^\d]/, "")
-    |> String.to_integer()
+  # FIXED
+  @spec parse_task(String.t()) :: map()
+  def parse_task(task) do
+    [_, category] = Regex.run(~r/\[(.*)\]/, task)
+    # [category] = Regex.run(~r/^\[.*\]/, task)
+    [description] = Regex.run(~r/(?<=\]\s).*?(?=\s-\s)/, task)
+    [time] = Regex.run(~r/(?<=\s-\s).*/, task)
+    %Task{category: category, description: description, time: parse_time(time)}
   end
 
   @spec parse_time(String.t()) :: non_neg_integer()

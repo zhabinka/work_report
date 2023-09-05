@@ -1,5 +1,5 @@
 defmodule WorkReport.Parser do
-  alias WorkReport.Model.{Task}
+  alias WorkReport.Model.{MonthReport, DayReport, Task}
 
   @months %{
     1 => "January",
@@ -26,44 +26,29 @@ defmodule WorkReport.Parser do
     7 => "sun"
   }
 
-  def build_tree(markdown) do
-    markdown
+  def parse_year(data_per_year) do
+    data_per_year
+    |> String.trim()
     |> String.split("\n\n\n")
-    |> Enum.map(&String.split(&1, "\n\n"))
-    |> Enum.map(&build_month/1)
+    |> Enum.map(&parse_month/1)
   end
 
-  def build_month(raw) do
-    ["# " <> month | items] = raw
+  def parse_month(data_per_month) do
+    ["# " <> month | data_per_days] = data_per_month |> String.trim() |> String.split("\n\n")
     {month_num, _} = Enum.find(@months, fn {_k, v} -> v == month end)
+    days = Enum.map(data_per_days, &parse_day/1)
 
-    days =
-      Enum.map(items, fn item ->
-        item
-        |> String.trim()
-        |> String.split("\n")
-        |> build_day
-      end)
-
-    %{month: month, month_num: month_num, days: days}
+    %MonthReport{month: month, month_num: month_num, days: days}
   end
 
-  def build_day(raw) do
-    ["## " <> day | tasks] = raw
-    [day_of_month, day_of_week] = String.split(day, " ")
-    processed_task = Enum.map(tasks, &build_task/1)
-    %{day: day_of_week, day_num: String.to_integer(day_of_month), tasks: processed_task}
+  def parse_day(data_per_day) do
+    ["## " <> day | data_per_tasks] = data_per_day |> String.trim() |> String.split("\n")
+    {day_num, _} = Integer.parse(day)
+    tasks = Enum.map(data_per_tasks, &parse_task/1)
+
+    %DayReport{day: day, day_num: day_num, tasks: tasks}
   end
 
-  def build_task(raw) do
-    [_, category] = Regex.run(~r/\[(.*)\]/, raw)
-    # [category] = Regex.run(~r/^\[.*\]/, raw)
-    [description] = Regex.run(~r/(?<=\]\s).*?(?=\s-\s)/, raw)
-    [time] = Regex.run(~r/(?<=\s-\s).*/, raw)
-    %{category: category, description: description, time: parse_time(time)}
-  end
-
-  # FIXED
   @spec parse_task(String.t()) :: map()
   def parse_task(task) do
     [_, category] = Regex.run(~r/\[(.*)\]/, task)

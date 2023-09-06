@@ -57,10 +57,13 @@ defmodule WorkReport.Formatter do
   @spec format_time(non_neg_integer()) :: String.t()
   def format_time(minutes) do
     hours = div(minutes, 60)
+    minutes = rem(minutes, 60)
 
     cond do
+      hours == 0 and minutes == 0 -> "0"
       hours == 0 -> "#{minutes}m"
-      true -> "#{hours}h #{rem(minutes, 60)}m"
+      minutes == 0 -> "#{hours}h"
+      true -> "#{hours}h #{minutes}m"
     end
   end
 end

@@ -1,4 +1,6 @@
 defmodule WorkReport.Formatter do
+  alias WorkReport.Model.{Task}
+
   @categories ["COMM", "DEV", "OPS", "DOC", "WS", "EDU"]
 
   def build_report(tree, month_num \\ 5, day_num \\ 4) do
@@ -56,7 +58,11 @@ defmodule WorkReport.Formatter do
     |> Enum.reduce([], fn {cat, time}, acc -> acc ++ [" - #{cat}: #{format_time(time)}\n"] end)
   end
 
-  @spec formate_task(map()) :: String.t()
+  @spec formate_task(Task.t()) :: String.t()
+  def format_task(task) do
+    " - #{task.category}: #{task.description} - #{format_time(task.time)}n"
+  end
+
   def formate_task(task) do
     %{time: time, description: description, category: category} = task
     " - #{category}: #{description} - #{format_time(time)}"

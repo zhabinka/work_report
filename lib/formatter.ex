@@ -46,6 +46,14 @@ defmodule WorkReport.Formatter do
 
   def format_category({cat, time}) do
     " - #{cat}: #{format_time(time)}"
+    Enum.reduce(@categories, %{}, fn cat, acc -> Map.put(acc, cat, 0) end)
+  end
+
+  @spec format_category_stat(map()) :: list()
+  def format_category_stat(stat) do
+    Enum.reduce(@categories, %{}, fn cat, acc -> Map.put(acc, cat, 0) end)
+    |> Map.merge(stat)
+    |> Enum.reduce([], fn {cat, time}, acc -> acc ++ [" - #{cat}: #{format_time(time)}\n"] end)
   end
 
   @spec formate_task(map()) :: String.t()
